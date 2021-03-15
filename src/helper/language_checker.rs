@@ -1,3 +1,23 @@
+type LanguageResult<'a> = Result<(), &'a str>;
+
+fn match_japanese_char(data: &char) -> bool {
+    match *data {
+        '\u{3041}'..='\u{3096}' => true,
+        '\u{30A0}'..='\u{30FF}' => true,
+        '\u{3400}'..='\u{4DB5}' => true,
+        '\u{4E00}'..='\u{9FCB}' => true,
+        '\u{F900}'..='\u{FA6A}' => true,
+        '\u{2E80}'..='\u{2FD5}' => true,
+        '\u{FF5F}'..='\u{FF9F}' => true,
+        '\u{3000}'..='\u{303F}' => true,
+        '\u{31F0}'..='\u{31FF}' => true,
+        '\u{3220}'..='\u{3243}' => true,
+        '\u{3280}'..='\u{337F}' => true,
+        '\u{FF01}'..='\u{FF5E}' => true,
+        _ => false,
+    }
+}
+
 fn match_korean_char(data: &char) -> bool {
     match *data {
         '\u{01100}'..='\u{011FF}' => true,
@@ -25,7 +45,16 @@ fn match_korean_char(data: &char) -> bool {
     }
 }
 
-pub fn korean(str: &str) -> Result<(), &str> {
+fn match_english_char(data: &char) -> bool {
+    match *data {
+        'a'..='z' => true,
+        'A'..='Z' => true,
+        _ => false,
+    }
+}
+
+
+pub fn korean(str: &str) -> LanguageResult {
     for word in str.split(" ") {
         for character in word.chars() {
             if !match_korean_char(&character) {
@@ -36,17 +65,31 @@ pub fn korean(str: &str) -> Result<(), &str> {
     Ok(())
 }
 
-pub fn japanese() {
-
+pub fn japanese(str: &str) -> LanguageResult {
+    for word in str.split(" ") {
+        for character in word.chars() {
+            if !match_japanese_char(&character) {
+                return Err(word);
+            }
+        }
+    }
+    Ok(())
 }
 
-pub fn english() {
-
+pub fn english(str: &str) -> LanguageResult {
+    for word in str.split(" ") {
+        for character in word.chars() {
+            if !match_english_char(&character) {
+                return Err(word);
+            }
+        }
+    }
+    Ok(())
 }
 
 #[cfg(test)]
 mod language_checker_tests {
-    use super::{korean};
+    use super::*;
 
     #[test]
     fn korean_test() {
@@ -57,21 +100,21 @@ mod language_checker_tests {
         assert_eq!(korean("漢字"), Err("漢字"));
     }
 
-    // #[test]
-    // fn japanese_test() {
-    //     assert_eq!(japanese("カタカナ"), true);
-    //     assert_eq!(japanese("ひらがな"), true);
-    //     assert_eq!(japanese("漢字"), false);
-    //     assert_eq!(japanese("english"), false);
-    //     assert_eq!(japanese("한글"), false);
-    // }
+    #[test]
+    fn japanese_test() {
+        assert_eq!(japanese("カタカナ"), Ok(()));
+        assert_eq!(japanese("ひらがな"), Ok(()));
+        assert_eq!(japanese("漢字"), Ok(()));
+        assert_eq!(japanese("english"), Err("english"));
+        assert_eq!(japanese("한글"), Err("한글"));
+    }
 
-    // #[test]
-    // fn english_test() {
-    //     assert_eq!(english("english"), true);
-    //     assert_eq!(english("한글"), false);
-    //     assert_eq!(english("カタカナ"), false);
-    //     assert_eq!(english("ひらがな"), false);
-    //     assert_eq!(english("漢字"), false);
-    // }
+    #[test]
+    fn english_test() {
+        assert_eq!(english("english"), Ok(()));
+        assert_eq!(english("한글"), Err("한글"));
+        assert_eq!(english("カタカナ"), Err("カタカナ"));
+        assert_eq!(english("ひらがな"), Err("ひらがな"));
+        assert_eq!(english("漢字"), Err("漢字"));
+    }
 }
