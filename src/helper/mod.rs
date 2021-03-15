@@ -23,9 +23,4 @@ mod tests {
         let v = Value::String("string".to_string());
         iterate_object(&v);
     }
-
-    #[test]
-    #[should_panic]
-    fn language_checker_test() {
-    }
 }
