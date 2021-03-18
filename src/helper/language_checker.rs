@@ -1,6 +1,6 @@
 type LanguageResult<'a> = Result<(), &'a str>;
 
-fn match_japanese_char(data: &char) -> bool {
+pub fn match_japanese_char(data: &char) -> bool {
     match *data {
         '\u{3041}'..='\u{3096}' => true,
         '\u{30A0}'..='\u{30FF}' => true,
@@ -18,7 +18,7 @@ fn match_japanese_char(data: &char) -> bool {
     }
 }
 
-fn match_korean_char(data: &char) -> bool {
+pub fn match_korean_char(data: &char) -> bool {
     match *data {
         '\u{01100}'..='\u{011FF}' => true,
         '\u{03001}'..='\u{03003}' => true,
@@ -45,7 +45,7 @@ fn match_korean_char(data: &char) -> bool {
     }
 }
 
-fn match_english_char(data: &char) -> bool {
+pub fn match_english_char(data: &char) -> bool {
     match *data {
         'a'..='z' => true,
         'A'..='Z' => true,
@@ -53,7 +53,7 @@ fn match_english_char(data: &char) -> bool {
     }
 }
 
-fn get_matcher(language_code: &str) -> fn(char: &char) -> bool {
+pub fn get_matcher(language_code: &str) -> fn(char: &char) -> bool {
     match language_code {
         "ko" => match_korean_char,
         "en" => match_english_char,
@@ -62,7 +62,7 @@ fn get_matcher(language_code: &str) -> fn(char: &char) -> bool {
     }
 }
 
-fn language_checker<'a>(language_code: &str, str: & 'a str) -> LanguageResult<'a> {
+pub fn language_checker<'a>(language_code: &str, str: & 'a str) -> LanguageResult<'a> {
     for word in str.split(" ") {
         for character in word.chars() {
             // TODO 특수문자 체크
@@ -103,5 +103,11 @@ mod tests {
         assert_eq!(language_checker("en","カタカナ"), Err("カタカナ"));
         assert_eq!(language_checker("en","ひらがな"), Err("ひらがな"));
         assert_eq!(language_checker("en","漢字"), Err("漢字"));
+    }
+
+    #[test]
+    #[should_panic]
+    fn wrong_language_code() {
+        language_checker("fr", "test").unwrap();
     }
 }
