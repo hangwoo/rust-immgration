@@ -74,9 +74,21 @@ pub fn language_checker<'a>(language_code: &str, str: & 'a str) -> LanguageResul
     Ok(())
 }
 
+pub fn match_special_char(char: &char) -> bool {
+    match *char {
+        '\u{0020}'..='\u{002F}' => true,
+        '\u{003A}'..='\u{0040}' => true,
+        '\u{005B}'..='\u{0060}' => true,
+        '\u{007B}'..='\u{007E}' => true,
+        '\u{20A9}' => true,
+        _ => false,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::{language_checker};
+    use crate::helper::language_checker::match_special_char;
 
     #[test]
     fn korean_test() {
@@ -103,6 +115,28 @@ mod tests {
         assert_eq!(language_checker("en","カタカナ"), Err("カタカナ"));
         assert_eq!(language_checker("en","ひらがな"), Err("ひらがな"));
         assert_eq!(language_checker("en","漢字"), Err("漢字"));
+    }
+
+    #[test]
+    fn special_character_test() {
+        assert_eq!(match_special_char(&'{'), true);
+        assert_eq!(match_special_char(&'}'), true);
+        assert_eq!(match_special_char(&'~'), true);
+        assert_eq!(match_special_char(&'!'), true);
+        assert_eq!(match_special_char(&'@'), true);
+        assert_eq!(match_special_char(&'#'), true);
+        assert_eq!(match_special_char(&'$'), true);
+        assert_eq!(match_special_char(&'%'), true);
+        assert_eq!(match_special_char(&'^'), true);
+        assert_eq!(match_special_char(&'&'), true);
+        assert_eq!(match_special_char(&'*'), true);
+        assert_eq!(match_special_char(&'('), true);
+        assert_eq!(match_special_char(&')'), true);
+        assert_eq!(match_special_char(&'-'), true);
+        assert_eq!(match_special_char(&'_'), true);
+        assert_eq!(match_special_char(&'+'), true);
+        assert_eq!(match_special_char(&'='), true);
+        assert_eq!(match_special_char(&'₩'), true);
     }
 
     #[test]
